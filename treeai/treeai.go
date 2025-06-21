@@ -96,6 +96,16 @@ func MergeWorktree(worktreeName string) {
 		exitWithError("Error deleting branch %s: %v\n", worktreeName, err)
 	}
 
+	sessionName, err := tmux.CreateSessionName(gitRoot, worktreeName)
+	if err != nil {
+		fmt.Printf("Warning: Could not determine tmux session name: %v\n", err)
+	} else {
+		fmt.Printf("Killing tmux session: %s\n", sessionName)
+		if err := tmux.KillSession(sessionName); err != nil {
+			fmt.Printf("Warning: Could not kill tmux session '%s': %v\n", sessionName, err)
+		}
+	}
+
 	fmt.Printf("Successfully merged and cleaned up worktree: %s\n", worktreeName)
 }
 

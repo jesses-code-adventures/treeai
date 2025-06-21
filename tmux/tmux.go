@@ -135,3 +135,17 @@ func SwitchToSession(sessionName string) error {
 
 	return nil
 }
+
+func KillSession(sessionName string) error {
+	checkCmd := exec.Command("tmux", "has-session", "-t", sessionName)
+	if checkCmd.Run() != nil {
+		return nil // Session doesn't exist, nothing to kill
+	}
+
+	killCmd := exec.Command("tmux", "kill-session", "-t", sessionName)
+	if err := killCmd.Run(); err != nil {
+		return fmt.Errorf("failed to kill tmux session '%s': %w", sessionName, err)
+	}
+
+	return nil
+}
