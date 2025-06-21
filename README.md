@@ -2,7 +2,7 @@
 
 A powerful tool for AI-assisted development that creates isolated git worktrees for AI collaboration while maintaining clean separation from your main development environment.
 
-this is a new update
+this is a new update no i dont think so
 
 ## Overview
 
