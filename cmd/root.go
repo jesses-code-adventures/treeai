@@ -71,8 +71,21 @@ func createWorktree(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "Warning: failed to update .gitignore: %v\n", err)
 	}
 
+	// Create tmux session name
+	sessionName, err := createTmuxSessionName(gitRoot, worktreeName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating tmux session name: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Create and switch to tmux session
+	if err := createAndSwitchTmuxSession(sessionName, worktreePath); err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating tmux session: %v\n", err)
+		os.Exit(1)
+	}
+
 	fmt.Printf("✅ Created worktree: %s\n", worktreePath)
-	fmt.Printf("💡 To start working: cd %s\n", worktreePath)
+	fmt.Printf("✅ Created tmux session: %s\n", sessionName)
 }
 
 func findGitRoot() (string, error) {
@@ -146,5 +159,79 @@ To install tmux:
 
 After installing tmux, you can use this tool to create AI development worktrees.`)
 	}
+	return nil
+}
+
+func getCurrentTmuxSession() (string, error) {
+	// Check if we're inside a tmux session
+	tmuxSession := os.Getenv("TMUX")
+	if tmuxSession == "" {
+		return "", nil // Not in a tmux session
+	}
+
+	// Get current session name
+	cmd := exec.Command("tmux", "display-message", "-p", "#S")
+	output, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("failed to get current tmux session: %w", err)
+	}
+
+	return strings.TrimSpace(string(output)), nil
+}
+
+func createTmuxSessionName(gitRoot, worktreeName string) (string, error) {
+	currentSession, err := getCurrentTmuxSession()
+	if err != nil {
+		return "", err
+	}
+
+	var baseSessionName string
+	if currentSession != "" {
+		// We're inside a tmux session, use current session name
+		baseSessionName = currentSession
+	} else {
+		// We're outside tmux, use basename of git root directory
+		baseSessionName = filepath.Base(gitRoot)
+	}
+
+	return fmt.Sprintf("%s-%s", baseSessionName, worktreeName), nil
+}
+
+func createAndSwitchTmuxSession(sessionName, worktreePath string) error {
+	// Check if session already exists
+	checkCmd := exec.Command("tmux", "has-session", "-t", sessionName)
+	if checkCmd.Run() == nil {
+		return fmt.Errorf("tmux session '%s' already exists", sessionName)
+	}
+
+	// Create new session in detached mode
+	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", worktreePath)
+	if err := createCmd.Run(); err != nil {
+		return fmt.Errorf("failed to create tmux session: %w", err)
+	}
+
+	// Check if we're currently in a tmux session
+	currentSession, err := getCurrentTmuxSession()
+	if err != nil {
+		return err
+	}
+
+	if currentSession != "" {
+		// We're inside tmux, switch to the new session
+		switchCmd := exec.Command("tmux", "switch-client", "-t", sessionName)
+		if err := switchCmd.Run(); err != nil {
+			return fmt.Errorf("failed to switch to tmux session: %w", err)
+		}
+	} else {
+		// We're outside tmux, attach to the new session
+		attachCmd := exec.Command("tmux", "attach-session", "-t", sessionName)
+		attachCmd.Stdin = os.Stdin
+		attachCmd.Stdout = os.Stdout
+		attachCmd.Stderr = os.Stderr
+		if err := attachCmd.Run(); err != nil {
+			return fmt.Errorf("failed to attach to tmux session: %w", err)
+		}
+	}
+
 	return nil
 }
