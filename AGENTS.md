@@ -25,5 +25,14 @@
 
 ## Project Structure
 - This is a CLI tool for managing AI development worktrees
-- Main module: `github.com/jesses-code-adventures/opentree`
-- No existing source files yet - follow standard Go project layout when creating
+- Git module: `github.com/jesses-code-adventures/git` (git cli wrapper)
+- Tmux module: `github.com/jesses-code-adventures/tmux` (tmux cli wrapper)
+- Opentree module: `github.com/jesses-code-adventures/opentree` (all application specific logic)
+- Cmd module: `github.com/jesses-code-adventures/opentree/cmd` (command line interface)
+
+## Testing
+- Use `go test` for unit tests
+- Use `go test -race` for race tests
+
+## CI/CD
+- Use GitHub Actions for CI/CD

@@ -1,43 +1,32 @@
-# OpenCode Trees Makefile
-
 BINARY_NAME=opentree
-BUILD_DIR=.
+BUILD_DIR=build
 INSTALL_DIR=$(if $(XDG_BIN_HOME),$(XDG_BIN_HOME),$(HOME)/.local/bin)
 
 .PHONY: build install test clean help
 
-# Default target
 all: build
 
-# Build the binary
 build:
 	go build -o $(BUILD_DIR)/$(BINARY_NAME) .
 
-# Install the binary to XDG_BIN_HOME or ~/.local/bin
 install: build
 	mkdir -p $(INSTALL_DIR)
 	cp $(BUILD_DIR)/$(BINARY_NAME) $(INSTALL_DIR)/$(BINARY_NAME)
 
-# Run tests
 test:
 	go test ./...
 
-# Clean build artifacts
 clean:
 	rm -f $(BUILD_DIR)/$(BINARY_NAME)
 
-# Format code
 fmt:
 	go fmt ./...
 
-# Lint code
 vet:
 	go vet ./...
 
-# Run all checks (format, vet, test)
 check: fmt vet test
 
-# Show help
 help:
 	@echo "Available targets:"
 	@echo "  build   - Build the binary"
