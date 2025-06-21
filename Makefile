@@ -1,4 +1,5 @@
 BINARY_NAME=opentree
+WORKTREES_DIR=.opencode-trees
 BUILD_DIR=build
 INSTALL_DIR=$(if $(XDG_BIN_HOME),$(XDG_BIN_HOME),$(HOME)/.local/bin)
 
@@ -17,7 +18,11 @@ test:
 	go test ./...
 
 clean:
+	rm -rf $(WORKTREES_DIR)
+	git worktree prune
+	git branch --merged | grep -v "main" | xargs git branch -d
 	rm -f $(BUILD_DIR)/$(BINARY_NAME)
+	git branch
 
 fmt:
 	go fmt ./...
