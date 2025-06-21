@@ -65,6 +65,8 @@ func CreateAndSwitchSession(sessionName, worktreePath string) error {
 	}
 
 	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", worktreePath, "nvim")
+	createCmd.Stdout = nil
+	createCmd.Stderr = nil
 	if err := createCmd.Run(); err != nil {
 		return fmt.Errorf("failed to create tmux session: %w", err)
 	}
