@@ -1,4 +1,4 @@
-module github.com/jesses-code-adventures/opentree
+module github.com/jesses-code-adventures/treeai
 
 go 1.24.2
 

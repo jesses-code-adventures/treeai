@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/jesses-code-adventures/opentree/opentree"
+	"github.com/jesses-code-adventures/treeai/treeai"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -10,7 +10,7 @@ import (
 var mergeFlag bool
 
 var rootCmd = &cobra.Command{
-	Use:   "opentree <worktree-name>",
+	Use:   "treeai <worktree-name>",
 	Short: "Tmux plugin for creating AI-dedicated git worktrees",
 	Long: `OpenCode Trees is a tmux plugin that creates isolated git worktrees in .opencode-trees/ 
 directories for AI-assisted development while maintaining clean separation from your main environment.
@@ -33,8 +33,8 @@ func Execute() {
 
 func handleCommand(cmd *cobra.Command, args []string) {
 	if mergeFlag {
-		opentree.MergeWorktree(args[0])
+		treeai.MergeWorktree(args[0])
 	} else {
-		opentree.CreateWorktree(args[0])
+		treeai.CreateWorktree(args[0])
 	}
 }

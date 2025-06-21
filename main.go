@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/jesses-code-adventures/opentree/cmd"
+	"github.com/jesses-code-adventures/treeai/cmd"
 )
 
 func main() {

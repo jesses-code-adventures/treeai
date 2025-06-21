@@ -1,4 +1,4 @@
-BINARY_NAME=opentree
+BINARY_NAME=treeai
 WORKTREES_DIR=.opencode-trees
 BUILD_DIR=build
 INSTALL_DIR=$(if $(XDG_BIN_HOME),$(XDG_BIN_HOME),$(HOME)/.local/bin)

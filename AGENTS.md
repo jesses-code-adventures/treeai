@@ -1,7 +1,7 @@
-# Agent Guidelines for OpenCode Trees
+# Agent Guidelines for TreeAI
 
 ## Build/Test Commands
-- `make build` - Build the opentree binary
+- `make build` - Build the treeai binary
 - `make install` - Build and install to XDG_BIN_HOME or ~/.local/bin
 - `make test` - Run all tests
 - `make check` - Run fmt, vet, and test
@@ -28,8 +28,8 @@
 - This is a CLI tool for managing AI development worktrees
 - Git module: `github.com/jesses-code-adventures/git` (git cli wrapper)
 - Tmux module: `github.com/jesses-code-adventures/tmux` (tmux cli wrapper)
-- Opentree module: `github.com/jesses-code-adventures/opentree` (all application specific logic)
-- Cmd module: `github.com/jesses-code-adventures/opentree/cmd` (command line interface)
+- Opentree module: `github.com/jesses-code-adventures/treeai` (all application specific logic)
+- Cmd module: `github.com/jesses-code-adventures/treeai/cmd` (command line interface)
 
 ## Testing
 - Use `go test` for unit tests
