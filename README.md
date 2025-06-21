@@ -1,4 +1,4 @@
-# TreeAI
+# treeai
 
 A cli application & tmux plugin for tight integration between tmux, git worktrees and [Opencode](https://github.com/sst/OpenCode).
 
@@ -16,7 +16,7 @@ make install
 After installing `treeai`, add the following to your `~/.tmux.conf` file, then reload your configuration:
 
 ```tmux
-# TreeAI
+# treeai
 bind-key o command-prompt -p "worktree name:" "run-shell 'treeai %%'" # binds creation of a new worktree to `<prefix>o`
 ```
 

@@ -1,4 +1,4 @@
-# Agent Guidelines for TreeAI
+# Agent Guidelines for treeai
 
 ## Build/Test Commands
 - `make build` - Build the treeai binary

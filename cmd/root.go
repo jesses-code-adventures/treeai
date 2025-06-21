@@ -12,7 +12,7 @@ var mergeFlag bool
 var rootCmd = &cobra.Command{
 	Use:   "treeai <worktree-name>",
 	Short: "Tmux plugin for creating AI-dedicated git worktrees",
-	Long: `OpenCode Trees is a tmux plugin that creates isolated git worktrees in .opencode-trees/ 
+	Long: `treeai is a tmux plugin that creates isolated git worktrees in .opencode-trees/ 
 directories for AI-assisted development while maintaining clean separation from your main environment.
 
 This tool requires tmux to be installed and is designed to work as a tmux plugin.`,

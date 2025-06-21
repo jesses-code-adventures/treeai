@@ -13,7 +13,7 @@ func CheckInstalled() error {
 	if err != nil {
 		return fmt.Errorf(`tmux is not installed or not in PATH
 
-TreeAI requires tmux to be installed
+treeai requires tmux to be installed
 
 To install tmux:
   • macOS: brew install tmux
