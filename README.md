@@ -1,6 +1,6 @@
 # TreeAI
 
-A cli application & tmux plugin for tight integration between tmux, git worktrees and (Opencode)[https://github.com/sst/OpenCode].
+A cli application & tmux plugin for tight integration between tmux, git worktrees and [Opencode](https://github.com/sst/OpenCode).
 
 ## Overview
 
