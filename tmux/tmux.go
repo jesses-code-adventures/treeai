@@ -58,30 +58,30 @@ func CreateSessionName(gitRoot, worktreeName string) (string, error) {
 	return fmt.Sprintf("%s-%s", baseSessionName, worktreeName), nil
 }
 
-func CreateAndSwitchSession(sessionName, worktreePath string) error {
+func CreateAndSwitchSession(sessionName, worktreePath string, windowCommands []string) error {
 	checkCmd := exec.Command("tmux", "has-session", "-t", sessionName)
 	if checkCmd.Run() == nil {
 		return fmt.Errorf("tmux session '%s' already exists", sessionName)
 	}
 
-	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", worktreePath, "nvim")
+	// Create session with opencode as the default window (window 0)
+	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", worktreePath, "opencode")
 	if err := createCmd.Run(); err != nil {
 		return fmt.Errorf("failed to create tmux session: %w", err)
 	}
 
-	window2Cmd := exec.Command("tmux", "new-window", "-t", sessionName, "-c", worktreePath)
-	if err := window2Cmd.Run(); err != nil {
-		return fmt.Errorf("failed to create second window: %w", err)
+	// Create additional windows with custom commands
+	for _, command := range windowCommands {
+		windowCmd := exec.Command("tmux", "new-window", "-t", sessionName, "-c", worktreePath, "bash", "-c", command)
+		if err := windowCmd.Run(); err != nil {
+			return fmt.Errorf("failed to create window with command '%s': %w", command, err)
+		}
 	}
 
-	window3Cmd := exec.Command("tmux", "new-window", "-t", sessionName, "-c", worktreePath, "opencode")
-	if err := window3Cmd.Run(); err != nil {
-		return fmt.Errorf("failed to create third window with opencode: %w", err)
-	}
-
-	selectCmd := exec.Command("tmux", "select-window", "-t", sessionName+":2")
+	// Always select window 0 (opencode) as the default focused window
+	selectCmd := exec.Command("tmux", "select-window", "-t", sessionName+":0")
 	if err := selectCmd.Run(); err != nil {
-		return fmt.Errorf("failed to select first window: %w", err)
+		return fmt.Errorf("failed to select opencode window: %w", err)
 	}
 
 	currentSession, err := GetCurrentSession()
