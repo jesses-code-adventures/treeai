@@ -88,9 +88,9 @@ func SwitchBranch(gitRoot, branchName string) error {
 	return nil
 }
 
-func RebaseOnMain(gitRoot string) error {
+func RebaseOnMain(workingDir string) error {
 	cmd := exec.Command("git", "rebase", "main")
-	cmd.Dir = gitRoot
+	cmd.Dir = workingDir
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {

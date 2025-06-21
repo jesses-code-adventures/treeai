@@ -108,3 +108,26 @@ func CreateAndSwitchSession(sessionName, worktreePath string) error {
 
 	return nil
 }
+
+func SwitchToSession(sessionName string) error {
+	currentSession, err := GetCurrentSession()
+	if err != nil {
+		return err
+	}
+
+	if currentSession == "" {
+		return fmt.Errorf("not currently in a tmux session")
+	}
+
+	checkCmd := exec.Command("tmux", "has-session", "-t", sessionName)
+	if checkCmd.Run() != nil {
+		return fmt.Errorf("tmux session '%s' does not exist", sessionName)
+	}
+
+	switchCmd := exec.Command("tmux", "switch-client", "-t", sessionName)
+	if err := switchCmd.Run(); err != nil {
+		return fmt.Errorf("failed to switch to tmux session '%s': %w", sessionName, err)
+	}
+
+	return nil
+}
