@@ -1,7 +1,7 @@
 # OpenCode Trees Makefile
 
 BINARY_NAME=opentree
-BUILD_DIR=build
+BUILD_DIR=.
 INSTALL_DIR=$(if $(XDG_BIN_HOME),$(XDG_BIN_HOME),$(HOME)/.local/bin)
 
 .PHONY: build install test clean help

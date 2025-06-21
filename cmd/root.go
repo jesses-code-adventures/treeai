@@ -204,10 +204,28 @@ func createAndSwitchTmuxSession(sessionName, worktreePath string) error {
 		return fmt.Errorf("tmux session '%s' already exists", sessionName)
 	}
 
-	// Create new session in detached mode
-	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", worktreePath)
+	// Create new session in detached mode with nvim in first window
+	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", worktreePath, "nvim")
 	if err := createCmd.Run(); err != nil {
 		return fmt.Errorf("failed to create tmux session: %w", err)
+	}
+
+	// Create second window (empty shell)
+	window2Cmd := exec.Command("tmux", "new-window", "-t", sessionName, "-c", worktreePath)
+	if err := window2Cmd.Run(); err != nil {
+		return fmt.Errorf("failed to create second window: %w", err)
+	}
+
+	// Create third window with opencode
+	window3Cmd := exec.Command("tmux", "new-window", "-t", sessionName, "-c", worktreePath, "opencode")
+	if err := window3Cmd.Run(); err != nil {
+		return fmt.Errorf("failed to create third window with opencode: %w", err)
+	}
+
+	// Select the first window (nvim)
+	selectCmd := exec.Command("tmux", "select-window", "-t", sessionName+":0")
+	if err := selectCmd.Run(); err != nil {
+		return fmt.Errorf("failed to select first window: %w", err)
 	}
 
 	// Check if we're currently in a tmux session
