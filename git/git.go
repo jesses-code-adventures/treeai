@@ -89,14 +89,12 @@ func SwitchBranch(gitRoot, branchName string) error {
 }
 
 func RebaseOnMain(workingDir string) error {
-	// First, do a dry-run check for conflicts
 	if hasConflicts, err := checkRebaseConflicts(workingDir); err != nil {
 		return fmt.Errorf("failed to check for rebase conflicts: %w", err)
 	} else if hasConflicts {
 		return fmt.Errorf("rebase conflicts detected. resolve conflicts manually first")
 	}
 
-	// Proceed with actual rebase
 	cmd := exec.Command("git", "rebase", "main")
 	cmd.Dir = workingDir
 
