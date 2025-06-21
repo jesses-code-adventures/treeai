@@ -20,6 +20,8 @@
 - Group imports: standard library, third-party, local packages
 - Add comments for exported functions and types
 - Use interfaces for testability and flexibility
+- In the makefile, do not echo what is happening - instead, just allow the command to print
+- ensure the binary is always built into the `build/` directory
 
 ## Project Structure
 - This is a CLI tool for managing AI development worktrees

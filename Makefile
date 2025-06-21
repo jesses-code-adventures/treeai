@@ -15,6 +15,7 @@ build:
 
 # Install the binary to XDG_BIN_HOME or ~/.local/bin
 install: build
+	mkdir -p $(INSTALL_DIR)
 	cp $(BUILD_DIR)/$(BINARY_NAME) $(INSTALL_DIR)/$(BINARY_NAME)
 
 # Run tests
@@ -23,9 +24,7 @@ test:
 
 # Clean build artifacts
 clean:
-	@echo "Cleaning build artifacts..."
 	rm -f $(BUILD_DIR)/$(BINARY_NAME)
-	rm -f $(INSTALL_DIR)/$(BINARY_NAME)
 
 # Format code
 fmt:

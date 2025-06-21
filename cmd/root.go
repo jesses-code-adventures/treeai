@@ -12,9 +12,11 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "opentree <worktree-name>",
-	Short: "Create AI-dedicated git worktrees for OpenCode collaboration",
-	Long: `OpenCode Trees creates isolated git worktrees in .opencode-trees/ directories
-for AI-assisted development while maintaining clean separation from your main environment.`,
+	Short: "Tmux plugin for creating AI-dedicated git worktrees",
+	Long: `OpenCode Trees is a tmux plugin that creates isolated git worktrees in .opencode-trees/ 
+directories for AI-assisted development while maintaining clean separation from your main environment.
+
+This tool requires tmux to be installed and is designed to work as a tmux plugin.`,
 	Args: cobra.ExactArgs(1),
 	Run:  createWorktree,
 }
@@ -28,6 +30,12 @@ func Execute() {
 
 func createWorktree(cmd *cobra.Command, args []string) {
 	worktreeName := args[0]
+
+	// Check if tmux is installed
+	if err := checkTmuxInstalled(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 
 	// Find git root directory
 	gitRoot, err := findGitRoot()
@@ -121,4 +129,22 @@ func updateGitignore(gitRoot string) error {
 	content += ".opencode-trees/\n"
 
 	return os.WriteFile(gitignorePath, []byte(content), 0644)
+}
+
+func checkTmuxInstalled() error {
+	_, err := exec.LookPath("tmux")
+	if err != nil {
+		return fmt.Errorf(`tmux is not installed or not in PATH
+
+OpenCode Trees is a tmux plugin and requires tmux to be installed.
+
+To install tmux:
+  • macOS: brew install tmux
+  • Ubuntu/Debian: sudo apt install tmux  
+  • CentOS/RHEL: sudo yum install tmux
+  • Arch Linux: sudo pacman -S tmux
+
+After installing tmux, you can use this tool to create AI development worktrees.`)
+	}
+	return nil
 }
