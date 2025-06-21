@@ -40,7 +40,7 @@ func CreateWorktree(gitRoot, worktreePath, branchName string) error {
 	return nil
 }
 
-func Updateignore(gitRoot string) error {
+func UpdateIgnore(gitRoot string) error {
 	gitignorePath := filepath.Join(gitRoot, ".gitignore")
 
 	content := ""
@@ -103,13 +103,10 @@ func RebaseOnMain(workingDir string) error {
 }
 
 func checkRebaseConflicts(workingDir string) (bool, error) {
-	currentBranchCmd := exec.Command("git", "branch", "--show-current")
-	currentBranchCmd.Dir = workingDir
-	branchOutput, err := currentBranchCmd.Output()
+	currentBranch, err := GetCurrentBranch(workingDir)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("getting current branch: %w", err)
 	}
-	currentBranch := strings.TrimSpace(string(branchOutput))
 
 	cmd := exec.Command("git", "merge-tree", "main", currentBranch)
 	cmd.Dir = workingDir
@@ -119,9 +116,15 @@ func checkRebaseConflicts(workingDir string) (bool, error) {
 		return true, nil
 	}
 
-	return strings.Contains(string(output), "<<<<<<<") ||
-		strings.Contains(string(output), "=======") ||
-		strings.Contains(string(output), ">>>>>>>"), nil
+	conflictMarkers := []string{"<<<<<<<", "=======", ">>>>>>>"}
+	outputStr := string(output)
+	for _, marker := range conflictMarkers {
+		if strings.Contains(outputStr, marker) {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 func MergeBranch(gitRoot, branchName string) error {
