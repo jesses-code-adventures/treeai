@@ -1,13 +1,13 @@
 # Agent Guidelines for OpenCode Trees
 
 ## Build/Test Commands
-- `go build ./...` - Build all packages
-- `go test ./...` - Run all tests
-- `go test ./path/to/package` - Run tests for specific package
+- `make build` - Build the opentree binary
+- `make install` - Build and install to XDG_BIN_HOME or ~/.local/bin
+- `make test` - Run all tests
+- `make check` - Run fmt, vet, and test
+- `make clean` - Remove build artifacts
 - `go test -run TestFunctionName` - Run single test function
 - `go mod tidy` - Clean up dependencies
-- `go fmt ./...` - Format all Go files
-- `go vet ./...` - Run static analysis
 
 ## Code Style Guidelines
 - Use `gofmt` for consistent formatting
