@@ -89,29 +89,45 @@ func SwitchBranch(gitRoot, branchName string) error {
 }
 
 func RebaseOnMain(workingDir string) error {
+	// First, do a dry-run check for conflicts
+	if hasConflicts, err := checkRebaseConflicts(workingDir); err != nil {
+		return fmt.Errorf("failed to check for rebase conflicts: %w", err)
+	} else if hasConflicts {
+		return fmt.Errorf("rebase conflicts detected. resolve conflicts manually first")
+	}
+
+	// Proceed with actual rebase
 	cmd := exec.Command("git", "rebase", "main")
 	cmd.Dir = workingDir
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		// Check if it's a rebase conflict
-		statusCmd := exec.Command("git", "status", "--porcelain")
-		statusCmd.Dir = workingDir
-		statusOutput, statusErr := statusCmd.Output()
-
-		if statusErr == nil && strings.Contains(string(statusOutput), "UU") {
-			// Abort the rebase on conflict
-			abortCmd := exec.Command("git", "rebase", "--abort")
-			abortCmd.Dir = workingDir
-			abortCmd.Run() // Best effort abort
-
-			return fmt.Errorf("rebase conflicts detected and aborted. resolve conflicts manually first.\nOutput: %s", string(output))
-		}
-
 		return fmt.Errorf("failed to rebase on main: %w\nOutput: %s", err, string(output))
 	}
 
 	return nil
+}
+
+func checkRebaseConflicts(workingDir string) (bool, error) {
+	currentBranchCmd := exec.Command("git", "branch", "--show-current")
+	currentBranchCmd.Dir = workingDir
+	branchOutput, err := currentBranchCmd.Output()
+	if err != nil {
+		return false, err
+	}
+	currentBranch := strings.TrimSpace(string(branchOutput))
+
+	cmd := exec.Command("git", "merge-tree", "main", currentBranch)
+	cmd.Dir = workingDir
+
+	output, err := cmd.Output()
+	if err != nil {
+		return true, nil
+	}
+
+	return strings.Contains(string(output), "<<<<<<<") ||
+		strings.Contains(string(output), "=======") ||
+		strings.Contains(string(output), ">>>>>>>"), nil
 }
 
 func MergeBranch(gitRoot, branchName string) error {
