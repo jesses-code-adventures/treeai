@@ -2,6 +2,7 @@ package treeai
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -14,7 +15,19 @@ func exitWithError(format string, args ...any) {
 	os.Exit(1)
 }
 
-func CreateWorktree(worktreeName string) {
+func printf(silent bool, format string, args ...any) {
+	if !silent {
+		fmt.Printf(format, args...)
+	}
+}
+
+func fprintf(silent bool, w io.Writer, format string, args ...any) {
+	if !silent {
+		fmt.Fprintf(w, format, args...)
+	}
+}
+
+func CreateWorktree(worktreeName string, silent bool) {
 	if err := tmux.CheckInstalled(); err != nil {
 		exitWithError("Error: %v\n", err)
 	}
@@ -34,7 +47,7 @@ func CreateWorktree(worktreeName string) {
 	}
 
 	if err := git.UpdateIgnore(gitRoot); err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: failed to update .gitignore: %v\n", err)
+		fprintf(silent, os.Stderr, "Warning: failed to update .gitignore: %v\n", err)
 	}
 
 	sessionName, err := tmux.CreateSessionName(gitRoot, worktreeName)
@@ -46,8 +59,8 @@ func CreateWorktree(worktreeName string) {
 		exitWithError("Error creating tmux session: %v\n", err)
 	}
 
-	fmt.Printf("Created worktree: %s\n", worktreePath)
-	fmt.Printf("Created tmux session: %s\n", sessionName)
+	printf(silent, "Created worktree: %s\n", worktreePath)
+	printf(silent, "Created tmux session: %s\n", sessionName)
 }
 
 func setupWorktreeDirectory(gitRoot, worktreeName string) (string, error) {
@@ -64,7 +77,7 @@ func setupWorktreeDirectory(gitRoot, worktreeName string) (string, error) {
 	return worktreePath, nil
 }
 
-func MergeWorktree(worktreeName string) {
+func MergeWorktree(worktreeName string, silent bool) {
 	gitRoot, err := git.FindRoot()
 	if err != nil {
 		exitWithError("Error: %v\n", err)
@@ -76,37 +89,37 @@ func MergeWorktree(worktreeName string) {
 		exitWithError("Error: %v\n", err)
 	}
 
-	fmt.Printf("Rebasing on main...\n")
+	printf(silent, "Rebasing on main...\n")
 	if err := git.RebaseOnMain(worktreePath); err != nil {
 		exitWithError("Error rebasing on main: %v\n", err)
 	}
 
-	fmt.Printf("Merging branch: %s\n", worktreeName)
+	printf(silent, "Merging branch: %s\n", worktreeName)
 	if err := git.MergeBranch(gitRoot, worktreeName); err != nil {
 		exitWithError("Error merging branch %s: %v\n", worktreeName, err)
 	}
 
-	fmt.Printf("Removing worktree: %s\n", worktreePath)
+	printf(silent, "Removing worktree: %s\n", worktreePath)
 	if err := git.RemoveWorktree(gitRoot, worktreePath); err != nil {
 		exitWithError("Error removing worktree: %v\n", err)
 	}
 
-	fmt.Printf("Deleting branch: %s\n", worktreeName)
+	printf(silent, "Deleting branch: %s\n", worktreeName)
 	if err := git.DeleteBranch(gitRoot, worktreeName); err != nil {
 		exitWithError("Error deleting branch %s: %v\n", worktreeName, err)
 	}
 
 	sessionName, err := tmux.CreateSessionName(gitRoot, worktreeName)
 	if err != nil {
-		fmt.Printf("Warning: Could not determine tmux session name: %v\n", err)
+		printf(silent, "Warning: Could not determine tmux session name: %v\n", err)
 	} else {
-		fmt.Printf("Killing tmux session: %s\n", sessionName)
+		printf(silent, "Killing tmux session: %s\n", sessionName)
 		if err := tmux.KillSession(sessionName); err != nil {
-			fmt.Printf("Warning: Could not kill tmux session '%s': %v\n", sessionName, err)
+			printf(silent, "Warning: Could not kill tmux session '%s': %v\n", sessionName, err)
 		}
 	}
 
-	fmt.Printf("Successfully merged and cleaned up worktree: %s\n", worktreeName)
+	printf(silent, "Successfully merged and cleaned up worktree: %s\n", worktreeName)
 }
 
 func validateMergePrerequisites(gitRoot, worktreePath, worktreeName string) error {

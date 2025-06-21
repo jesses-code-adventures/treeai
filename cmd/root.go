@@ -8,6 +8,7 @@ import (
 )
 
 var mergeFlag bool
+var silentFlag bool
 
 var rootCmd = &cobra.Command{
 	Use:   "treeai <worktree-name>",
@@ -22,6 +23,7 @@ This tool requires tmux to be installed and is designed to work as a tmux plugin
 
 func init() {
 	rootCmd.Flags().BoolVar(&mergeFlag, "merge", false, "merge the worktree branch back to main and clean up")
+	rootCmd.Flags().BoolVar(&silentFlag, "silent", false, "suppress all output")
 }
 
 func Execute() {
@@ -33,8 +35,8 @@ func Execute() {
 
 func handleCommand(cmd *cobra.Command, args []string) {
 	if mergeFlag {
-		treeai.MergeWorktree(args[0])
+		treeai.MergeWorktree(args[0], silentFlag)
 	} else {
-		treeai.CreateWorktree(args[0])
+		treeai.CreateWorktree(args[0], silentFlag)
 	}
 }

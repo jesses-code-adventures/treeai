@@ -30,6 +30,20 @@ Call `treeai branch-name` to create a new branch & worktree called `branch-name`
 
 When you're satisfied with what `opencode` has implemented, merge the worktree from your `main` directory by calling `treeai branch-name --merge`. This will check out the worktree, rebase it against `main`, merge it into `main`, prune worktrees and delete merged git branches.
 
+### Silent mode
+
+Use the `--silent` flag to suppress all output from treeai operations:
+
+```bash
+# Create worktree silently
+treeai branch-name --silent
+
+# Merge worktree silently
+treeai branch-name --merge --silent
+```
+
+This is useful for scripting or when you want to minimize output during automated workflows.
+
 ## Roadmap
 
 - [ ] configuration for tmux window layout when opening a new worktree
