@@ -94,6 +94,20 @@ func RebaseOnMain(workingDir string) error {
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
+		// Check if it's a rebase conflict
+		statusCmd := exec.Command("git", "status", "--porcelain")
+		statusCmd.Dir = workingDir
+		statusOutput, statusErr := statusCmd.Output()
+
+		if statusErr == nil && strings.Contains(string(statusOutput), "UU") {
+			// Abort the rebase on conflict
+			abortCmd := exec.Command("git", "rebase", "--abort")
+			abortCmd.Dir = workingDir
+			abortCmd.Run() // Best effort abort
+
+			return fmt.Errorf("rebase conflicts detected and aborted. resolve conflicts manually first.\nOutput: %s", string(output))
+		}
+
 		return fmt.Errorf("failed to rebase on main: %w\nOutput: %s", err, string(output))
 	}
 
