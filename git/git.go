@@ -29,7 +29,6 @@ func FindRoot() (string, error) {
 }
 
 func CreateWorktree(gitRoot, worktreePath, branchName string) error {
-	// Create new branch and worktree
 	cmd := exec.Command("git", "worktree", "add", "-b", branchName, worktreePath)
 	cmd.Dir = gitRoot
 
@@ -44,18 +43,15 @@ func CreateWorktree(gitRoot, worktreePath, branchName string) error {
 func Updateignore(gitRoot string) error {
 	gitignorePath := filepath.Join(gitRoot, ".gitignore")
 
-	// Read existing .gitignore
 	content := ""
 	if data, err := os.ReadFile(gitignorePath); err == nil {
 		content = string(data)
 	}
 
-	// Check if .opencode-trees is already ignored
 	if strings.Contains(content, ".opencode-trees") {
 		return nil
 	}
 
-	// Add .opencode-trees to .gitignore
 	if content != "" && !strings.HasSuffix(content, "\n") {
 		content += "\n"
 	}
