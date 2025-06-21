@@ -16,7 +16,7 @@ make install
 After installing `treeai`, add the following to your `~/.tmux.conf` file, then reload your configuration:
 
 ```tmux
-# OpenCode Trees
+# TreeAI
 bind-key o command-prompt -p "worktree name:" "run-shell 'treeai %%'" # binds creation of a new worktree to `<prefix>o`
 ```
 

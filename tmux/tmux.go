@@ -13,7 +13,7 @@ func CheckInstalled() error {
 	if err != nil {
 		return fmt.Errorf(`tmux is not installed or not in PATH
 
-OpenCode Trees is a tmux plugin and requires tmux to be installed.
+TreeAI requires tmux to be installed
 
 To install tmux:
   • macOS: brew install tmux
@@ -21,7 +21,7 @@ To install tmux:
   • CentOS/RHEL: sudo yum install tmux
   • Arch Linux: sudo pacman -S tmux
 
-After installing tmux, you can use this tool to create AI development worktrees`)
+After installing tmux, you can use this tool to integrate git worktrees with opencode & tmux sessions`)
 	}
 	return nil
 }
@@ -117,6 +117,10 @@ func SwitchToSession(sessionName string) error {
 
 	if currentSession == "" {
 		return fmt.Errorf("not currently in a tmux session")
+	}
+
+	if currentSession == sessionName {
+		return nil
 	}
 
 	checkCmd := exec.Command("tmux", "has-session", "-t", sessionName)
