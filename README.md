@@ -24,7 +24,7 @@ bind-key o command-prompt -p "worktree name:" "run-shell 'treeai %%'" # binds cr
 
 ### Create a worktree & tmux session
 
-Call `treeai branch-name` to create a new branch & worktree called `branch-name` in the `.treeai` directory of your project. A tmux session with then be created and switched to, with windows for `nvim`, `bash` and `opencode` set up and `opencode` focused. By default, you can toggle between your main tmux session and the `opencode` session using `<prefix>L` to alternate between two tmux sessions. This allows you to assign opencode some work and quickly switch back to what you were doing.
+Call `treeai branch-name` to create a new branch & worktree called `branch-name` in the `.treeai` directory of your project. A tmux session will then be created and switched to, with `opencode` running in the default window (window 0). By default, you can toggle between your main tmux session and the `opencode` session using `<prefix>L` to alternate between two tmux sessions. This allows you to assign opencode some work and quickly switch back to what you were doing.
 
 ### Merge your worktree and clean up git environment
 
@@ -44,9 +44,19 @@ treeai branch-name --merge --silent
 
 This is useful for scripting or when you want to minimize output during automated workflows.
 
-## Roadmap
+### Custom window layouts
 
-- [ ] configuration for tmux window layout when opening a new worktree
+Use the `--window` flag to create additional tmux windows with custom commands:
+
+```bash
+# Create a worktree with additional windows
+treeai branch-name --window "npm run dev" --window "git log --oneline"
+
+# Multiple windows with different commands
+treeai branch-name --window "make build" --window "make test" --window "htop"
+```
+
+Each `--window` flag creates a new tmux window that runs the specified bash command. The `opencode` window (window 0) remains the default focused window, and you can navigate between windows using standard tmux commands (`<prefix>0`, `<prefix>1`, etc.).
 
 ## License
 
