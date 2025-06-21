@@ -63,3 +63,75 @@ func Updateignore(gitRoot string) error {
 
 	return os.WriteFile(gitignorePath, []byte(content), 0644)
 }
+
+func GetCurrentBranch(gitRoot string) (string, error) {
+	cmd := exec.Command("git", "branch", "--show-current")
+	cmd.Dir = gitRoot
+
+	output, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("failed to get current branch: %w", err)
+	}
+
+	return strings.TrimSpace(string(output)), nil
+}
+
+func SwitchBranch(gitRoot, branchName string) error {
+	cmd := exec.Command("git", "checkout", branchName)
+	cmd.Dir = gitRoot
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to switch to branch %s: %w\nOutput: %s", branchName, err, string(output))
+	}
+
+	return nil
+}
+
+func RebaseOnMain(gitRoot string) error {
+	cmd := exec.Command("git", "rebase", "main")
+	cmd.Dir = gitRoot
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to rebase on main: %w\nOutput: %s", err, string(output))
+	}
+
+	return nil
+}
+
+func MergeBranch(gitRoot, branchName string) error {
+	cmd := exec.Command("git", "merge", branchName)
+	cmd.Dir = gitRoot
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to merge branch %s: %w\nOutput: %s", branchName, err, string(output))
+	}
+
+	return nil
+}
+
+func RemoveWorktree(gitRoot, worktreePath string) error {
+	cmd := exec.Command("git", "worktree", "remove", worktreePath)
+	cmd.Dir = gitRoot
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to remove worktree %s: %w\nOutput: %s", worktreePath, err, string(output))
+	}
+
+	return nil
+}
+
+func DeleteBranch(gitRoot, branchName string) error {
+	cmd := exec.Command("git", "branch", "-d", branchName)
+	cmd.Dir = gitRoot
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to delete branch %s: %w\nOutput: %s", branchName, err, string(output))
+	}
+
+	return nil
+}

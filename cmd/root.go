@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+var mergeFlag bool
+
 var rootCmd = &cobra.Command{
 	Use:   "opentree <worktree-name>",
 	Short: "Tmux plugin for creating AI-dedicated git worktrees",
@@ -15,7 +17,11 @@ directories for AI-assisted development while maintaining clean separation from 
 
 This tool requires tmux to be installed and is designed to work as a tmux plugin.`,
 	Args: cobra.ExactArgs(1),
-	Run:  createWorktree,
+	Run:  handleCommand,
+}
+
+func init() {
+	rootCmd.Flags().BoolVar(&mergeFlag, "merge", false, "merge the worktree branch back to main and clean up")
 }
 
 func Execute() {
@@ -25,6 +31,10 @@ func Execute() {
 	}
 }
 
-func createWorktree(cmd *cobra.Command, args []string) {
-	opentree.CreateWorktree(args[0])
+func handleCommand(cmd *cobra.Command, args []string) {
+	if mergeFlag {
+		opentree.MergeWorktree(args[0])
+	} else {
+		opentree.CreateWorktree(args[0])
+	}
 }

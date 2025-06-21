@@ -22,6 +22,7 @@
 - Use interfaces for testability and flexibility
 - In the makefile, do not echo what is happening - instead, just allow the command to print
 - ensure the binary is always built into the `build/` directory
+- **NEVER use emojis** in code, comments, documentation, or any other files
 
 ## Project Structure
 - This is a CLI tool for managing AI development worktrees
