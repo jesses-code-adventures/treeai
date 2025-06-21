@@ -58,11 +58,6 @@ func CreateSessionName(gitRoot, worktreeName string) (string, error) {
 	return fmt.Sprintf("%s-%s", baseSessionName, worktreeName), nil
 }
 
-func suppressOutput(cmd *exec.Cmd) {
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-}
-
 func CreateAndSwitchSession(sessionName, worktreePath string) error {
 	checkCmd := exec.Command("tmux", "has-session", "-t", sessionName)
 	if checkCmd.Run() == nil {
@@ -70,25 +65,21 @@ func CreateAndSwitchSession(sessionName, worktreePath string) error {
 	}
 
 	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", worktreePath, "nvim")
-	suppressOutput(createCmd)
 	if err := createCmd.Run(); err != nil {
 		return fmt.Errorf("failed to create tmux session: %w", err)
 	}
 
 	window2Cmd := exec.Command("tmux", "new-window", "-t", sessionName, "-c", worktreePath)
-	suppressOutput(window2Cmd)
 	if err := window2Cmd.Run(); err != nil {
 		return fmt.Errorf("failed to create second window: %w", err)
 	}
 
 	window3Cmd := exec.Command("tmux", "new-window", "-t", sessionName, "-c", worktreePath, "opencode")
-	suppressOutput(window3Cmd)
 	if err := window3Cmd.Run(); err != nil {
 		return fmt.Errorf("failed to create third window with opencode: %w", err)
 	}
 
 	selectCmd := exec.Command("tmux", "select-window", "-t", sessionName+":2")
-	suppressOutput(selectCmd)
 	if err := selectCmd.Run(); err != nil {
 		return fmt.Errorf("failed to select first window: %w", err)
 	}
