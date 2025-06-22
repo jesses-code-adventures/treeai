@@ -58,14 +58,14 @@ func CreateSessionName(gitRoot, worktreeName string) (string, error) {
 	return fmt.Sprintf("%s-%s", baseSessionName, worktreeName), nil
 }
 
-func CreateAndSwitchSession(sessionName, worktreePath string, windowCommands []string) error {
+func CreateAndSwitchSession(sessionName, worktreePath string, windowCommands []string, binName string) error {
 	checkCmd := exec.Command("tmux", "has-session", "-t", sessionName)
 	if checkCmd.Run() == nil {
 		return fmt.Errorf("tmux session '%s' already exists", sessionName)
 	}
 
-	// Create session with opencode as the default window (window 0)
-	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", worktreePath, "opencode")
+	// Create session with the specified binary as the default window (window 0)
+	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", worktreePath, binName)
 	if err := createCmd.Run(); err != nil {
 		return fmt.Errorf("failed to create tmux session: %w", err)
 	}
@@ -78,10 +78,10 @@ func CreateAndSwitchSession(sessionName, worktreePath string, windowCommands []s
 		}
 	}
 
-	// Always select window 0 (opencode) as the default focused window
+	// Always select window 0 (the specified binary) as the default focused window
 	selectCmd := exec.Command("tmux", "select-window", "-t", sessionName+":0")
 	if err := selectCmd.Run(); err != nil {
-		return fmt.Errorf("failed to select opencode window: %w", err)
+		return fmt.Errorf("failed to select binary window: %w", err)
 	}
 
 	currentSession, err := GetCurrentSession()

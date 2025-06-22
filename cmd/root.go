@@ -10,6 +10,7 @@ import (
 var mergeFlag bool
 var silentFlag bool
 var windowCommands []string
+var binName string
 
 var rootCmd = &cobra.Command{
 	Use:   "treeai <worktree-name>",
@@ -26,6 +27,7 @@ func init() {
 	rootCmd.Flags().BoolVar(&mergeFlag, "merge", false, "merge the worktree branch back to main and clean up")
 	rootCmd.Flags().BoolVar(&silentFlag, "silent", false, "suppress all output")
 	rootCmd.Flags().StringArrayVar(&windowCommands, "window", []string{}, "add additional tmux windows with custom bash commands")
+	rootCmd.Flags().StringVar(&binName, "bin", "opencode", "binary to launch in the tmux session")
 }
 
 func Execute() {
@@ -40,10 +42,10 @@ func handleCommand(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "Error: cannot create a window when merging\n")
 		os.Exit(1)
 	}
-	
+
 	if mergeFlag {
 		treeai.MergeWorktree(args[0], silentFlag)
 	} else {
-		treeai.CreateWorktree(args[0], silentFlag, windowCommands)
+		treeai.CreateWorktree(args[0], silentFlag, windowCommands, binName)
 	}
 }
