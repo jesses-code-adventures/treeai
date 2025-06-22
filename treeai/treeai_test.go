@@ -45,7 +45,7 @@ func TestSetupWorktreeDirectory(t *testing.T) {
 			defer os.RemoveAll(tmpDir)
 
 			if tt.setupFunc != nil {
-				if err := tt.setupFunc(tmpDir); err != nil {
+				if err = tt.setupFunc(tmpDir); err != nil {
 					t.Fatal(err)
 				}
 			}

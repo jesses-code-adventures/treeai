@@ -42,11 +42,11 @@ func CreateWorktree(worktreeName string, silent bool, windowCommands []string) {
 		exitWithError("Error: %v\n", err)
 	}
 
-	if err := git.CreateWorktree(gitRoot, worktreePath, worktreeName); err != nil {
+	if err = git.CreateWorktree(gitRoot, worktreePath, worktreeName); err != nil {
 		exitWithError("Error creating git worktree: %v\n", err)
 	}
 
-	if err := git.UpdateIgnore(gitRoot); err != nil {
+	if err = git.UpdateIgnore(gitRoot); err != nil {
 		fprintf(silent, os.Stderr, "Warning: failed to update .gitignore: %v\n", err)
 	}
 
@@ -85,27 +85,32 @@ func MergeWorktree(worktreeName string, silent bool) {
 
 	worktreePath := filepath.Join(gitRoot, ".opencode-trees", worktreeName)
 
-	if err := validateMergePrerequisites(gitRoot, worktreePath, worktreeName); err != nil {
+	if err = validateMergePrerequisites(gitRoot, worktreePath, worktreeName); err != nil {
+		exitWithError("Error: %v\n", err)
+	}
+
+	currentBranch, err := git.GetCurrentBranch(gitRoot)
+	if err != nil {
 		exitWithError("Error: %v\n", err)
 	}
 
 	printf(silent, "Rebasing on main...\n")
-	if err := git.RebaseOnMain(worktreePath); err != nil {
+	if err = git.RebaseOnBranch(worktreePath, currentBranch); err != nil {
 		exitWithError("Error rebasing on main: %v\n", err)
 	}
 
 	printf(silent, "Merging branch: %s\n", worktreeName)
-	if err := git.MergeBranch(gitRoot, worktreeName); err != nil {
+	if err = git.MergeBranch(gitRoot, worktreeName); err != nil {
 		exitWithError("Error merging branch %s: %v\n", worktreeName, err)
 	}
 
 	printf(silent, "Removing worktree: %s\n", worktreePath)
-	if err := git.RemoveWorktree(gitRoot, worktreePath); err != nil {
+	if err = git.RemoveWorktree(gitRoot, worktreePath); err != nil {
 		exitWithError("Error removing worktree: %v\n", err)
 	}
 
 	printf(silent, "Deleting branch: %s\n", worktreeName)
-	if err := git.DeleteBranch(gitRoot, worktreeName); err != nil {
+	if err = git.DeleteBranch(gitRoot, worktreeName); err != nil {
 		exitWithError("Error deleting branch %s: %v\n", worktreeName, err)
 	}
 
@@ -114,7 +119,7 @@ func MergeWorktree(worktreeName string, silent bool) {
 		printf(silent, "Warning: Could not determine tmux session name: %v\n", err)
 	} else {
 		printf(silent, "Killing tmux session: %s\n", sessionName)
-		if err := tmux.KillSession(sessionName); err != nil {
+		if err = tmux.KillSession(sessionName); err != nil {
 			printf(silent, "Warning: Could not kill tmux session '%s': %v\n", sessionName, err)
 		}
 	}
@@ -131,7 +136,7 @@ func validateMergePrerequisites(gitRoot, worktreePath, worktreeName string) erro
 		return fmt.Errorf("uncommitted changes in git root. Please commit or stash changes first")
 	}
 
-	if _, err := os.Stat(worktreePath); os.IsNotExist(err) {
+	if _, err = os.Stat(worktreePath); os.IsNotExist(err) {
 		return fmt.Errorf("worktree '%s' does not exist", worktreeName)
 	}
 

@@ -138,7 +138,7 @@ func TestUpdateIgnore(t *testing.T) {
 
 			gitignorePath := filepath.Join(tmpDir, ".gitignore")
 			if tt.existingIgnore != "" {
-				if err := os.WriteFile(gitignorePath, []byte(tt.existingIgnore), 0644); err != nil {
+				if err = os.WriteFile(gitignorePath, []byte(tt.existingIgnore), 0644); err != nil {
 					t.Fatal(err)
 				}
 			}

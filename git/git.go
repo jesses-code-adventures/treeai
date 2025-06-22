@@ -102,6 +102,24 @@ func RebaseOnMain(workingDir string) error {
 	return nil
 }
 
+func RebaseOnBranch(workingDir, branchName string) error {
+	if hasConflicts, err := checkRebaseConflicts(workingDir); err != nil {
+		return fmt.Errorf("failed to check for rebase conflicts: %w", err)
+	} else if hasConflicts {
+		return fmt.Errorf("rebase conflicts detected. resolve conflicts manually first")
+	}
+
+	cmd := exec.Command("git", "rebase", branchName)
+	cmd.Dir = workingDir
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to rebase on %s: %w\nOutput: %s", branchName, err, string(output))
+	}
+
+	return nil
+}
+
 func checkRebaseConflicts(workingDir string) (bool, error) {
 	currentBranch, err := GetCurrentBranch(workingDir)
 	if err != nil {
