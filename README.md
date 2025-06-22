@@ -58,25 +58,6 @@ treeai branch-name --window "make build" --window "make test" --window "htop"
 
 Each `--window` flag creates a new tmux window that runs the specified bash command. The `opencode` window (window 0) remains the default focused window, and you can navigate between windows using standard tmux commands (`<prefix>0`, `<prefix>1`, etc.).
 
-## Contributing
-
-We welcome contributions to treeai! Here's how to get started:
-
-### Development Setup
-
-1. **Prerequisites**
-   - Go 1.21 or later
-   - Git
-   - Tmux
-   - Make
-
-2. **Clone and build**
-   ```bash
-   git clone https://github.com/jesses-code-adventures/treeai.git
-   cd treeai
-   make build
-   ```
-
 ### Development Commands
 
 - `make build` - Build the treeai binary
