@@ -94,9 +94,9 @@ func MergeWorktree(worktreeName string, silent bool) {
 		exitWithError("Error: %v\n", err)
 	}
 
-	printf(silent, "Rebasing on main...\n")
+	printf(silent, "Rebasing on %s...\n", currentBranch)
 	if err = git.RebaseOnBranch(worktreePath, currentBranch); err != nil {
-		exitWithError("Error rebasing on main: %v\n", err)
+		exitWithError("Error rebasing on %s: %v\n", currentBranch, err)
 	}
 
 	printf(silent, "Merging branch: %s\n", worktreeName)

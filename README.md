@@ -28,7 +28,7 @@ Call `treeai branch-name` to create a new branch & worktree called `branch-name`
 
 ### Merge your worktree and clean up git environment
 
-When you're satisfied with what `opencode` has implemented, merge the worktree from your `main` directory by calling `treeai branch-name --merge`. This will check out the worktree, rebase it against `main`, merge it into `main`, prune worktrees and delete merged git branches.
+When you're satisfied with what `opencode` has implemented, merge the worktree from your current directory by calling `treeai branch-name --merge`. This will check out the worktree, rebase it against the current branch, merge it into the current branch, prune worktrees and delete merged git branches.
 
 ### Silent mode
 
