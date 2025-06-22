@@ -27,7 +27,7 @@ func fprintf(silent bool, w io.Writer, format string, args ...any) {
 	}
 }
 
-func CreateWorktree(worktreeName string, silent bool, windowCommands []string, binName string) {
+func CreateWorktree(worktreeName string, silent bool, windowCommands []string, prompt, binName string) {
 	if err := tmux.CheckInstalled(); err != nil {
 		exitWithError("Error: %v\n", err)
 	}
@@ -55,7 +55,7 @@ func CreateWorktree(worktreeName string, silent bool, windowCommands []string, b
 		exitWithError("Error creating tmux session name: %v\n", err)
 	}
 
-	if err := tmux.CreateAndSwitchSession(sessionName, worktreePath, windowCommands, binName); err != nil {
+	if err := tmux.CreateAndSwitchSession(sessionName, worktreePath, windowCommands, prompt, binName); err != nil {
 		exitWithError("Error creating tmux session: %v\n", err)
 	}
 
