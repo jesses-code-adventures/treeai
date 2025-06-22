@@ -45,19 +45,19 @@ func handleCommand(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	if mergeFlag {
-		treeai.MergeWorktree(args[0], silentFlag)
-	} else {
-		treeai.CreateWorktree(args[0], silentFlag, windowCommands, binName)
-	
 	if mergeFlag && promptFlag != "" {
 		fmt.Fprintf(os.Stderr, "Error: cannot use --prompt flag when merging\n")
 		os.Exit(1)
 	}
-	
+
+	if mergeFlag && binName != "" {
+		fmt.Fprintf(os.Stderr, "Error: cannot use --bin-name flag when merging\n")
+		os.Exit(1)
+	}
+
 	if mergeFlag {
 		treeai.MergeWorktree(args[0], silentFlag)
 	} else {
-		treeai.CreateWorktree(args[0], silentFlag, windowCommands, promptFlag)
+		treeai.CreateWorktree(args[0], silentFlag, windowCommands, promptFlag, binName)
 	}
 }
