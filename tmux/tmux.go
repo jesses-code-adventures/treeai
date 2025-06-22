@@ -58,7 +58,7 @@ func CreateSessionName(gitRoot, worktreeName string) (string, error) {
 	return fmt.Sprintf("%s-%s", baseSessionName, worktreeName), nil
 }
 
-func CreateAndSwitchSession(sessionName, worktreePath string, windowCommands []string, command string) error {
+func CreateAndSwitchSession(sessionName, worktreePath string, windowCommands []string, prompt string) error {
 	checkCmd := exec.Command("tmux", "has-session", "-t", sessionName)
 	if checkCmd.Run() == nil {
 		return fmt.Errorf("tmux session '%s' already exists", sessionName)
@@ -84,11 +84,11 @@ func CreateAndSwitchSession(sessionName, worktreePath string, windowCommands []s
 		return fmt.Errorf("failed to select opencode window: %w", err)
 	}
 
-	// If a command is provided, send it to opencode and don't switch/attach to the session
-	if command != "" {
-		sendCmd := exec.Command("tmux", "send-keys", "-t", sessionName+":0", command, "Enter")
+	// If a prompt is provided, send it to opencode and don't switch/attach to the session
+	if prompt != "" {
+		sendCmd := exec.Command("tmux", "send-keys", "-t", sessionName+":0", prompt, "Enter")
 		if err := sendCmd.Run(); err != nil {
-			return fmt.Errorf("failed to send command to opencode: %w", err)
+			return fmt.Errorf("failed to send prompt to opencode: %w", err)
 		}
 		return nil
 	}
