@@ -84,7 +84,7 @@ func TestValidateMergePrerequisites(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	worktreePath := filepath.Join(tmpDir, ".opencode-trees", "test-branch")
-	if err := os.MkdirAll(worktreePath, 0755); err != nil {
+	if err = os.MkdirAll(worktreePath, 0755); err != nil {
 		t.Fatal(err)
 	}
 
