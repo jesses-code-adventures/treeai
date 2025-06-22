@@ -36,6 +36,11 @@ func Execute() {
 }
 
 func handleCommand(cmd *cobra.Command, args []string) {
+	if mergeFlag && len(windowCommands) > 0 {
+		fmt.Fprintf(os.Stderr, "Error: cannot create a window when merging\n")
+		os.Exit(1)
+	}
+	
 	if mergeFlag {
 		treeai.MergeWorktree(args[0], silentFlag)
 	} else {
