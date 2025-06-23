@@ -4,6 +4,8 @@ A cli application & tmux plugin for tight integration between tmux, git worktree
 
 ## Installation
 
+Note that you must have go>=1.24.2 installed - will be fixed in future, when I'm less lazy.
+
 ```bash
 curl -sSL https://raw.githubusercontent.com/jesses-code-adventures/treeai/main/install.sh | bash
 ```
