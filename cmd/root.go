@@ -50,7 +50,7 @@ func handleCommand(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	if mergeFlag && binName != "" {
+	if mergeFlag && binName != "opencode" {
 		fmt.Fprintf(os.Stderr, "Error: cannot use --bin-name flag when merging\n")
 		os.Exit(1)
 	}
