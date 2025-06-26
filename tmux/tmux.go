@@ -64,10 +64,15 @@ func CreateAndSwitchSession(sessionName, worktreePath string, windowCommands []s
 		return fmt.Errorf("tmux session '%s' already exists", sessionName)
 	}
 
-	// Create session with the specified binary as the default window (window 0)
-	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", worktreePath, binName)
+	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", worktreePath)
 	if err := createCmd.Run(); err != nil {
 		return fmt.Errorf("failed to create tmux session: %w", err)
+	}
+
+	// Send the binary command to the shell
+	sendCmd := exec.Command("tmux", "send-keys", "-t", sessionName+":0", binName, "Enter")
+	if err := sendCmd.Run(); err != nil {
+		return fmt.Errorf("failed to send binary command: %w", err)
 	}
 
 	// Create additional windows with custom commands

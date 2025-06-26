@@ -55,6 +55,10 @@ func CreateWorktree(worktreeName string, silent bool, windowCommands []string, p
 		exitWithError("Error creating tmux session name: %v\n", err)
 	}
 
+	if binName == "opencode" {
+		binName = binName + " " + worktreePath
+	}
+
 	if err := tmux.CreateAndSwitchSession(sessionName, worktreePath, windowCommands, prompt, binName); err != nil {
 		exitWithError("Error creating tmux session: %v\n", err)
 	}
