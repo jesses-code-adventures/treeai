@@ -7,8 +7,8 @@ To quickly create isolated environments for coding agents, this cli application 
 - Create a git worktree with a new branch (stored in `$HOME/.local/share/treeai`)
 - Open the worktree in a new tmux session or window, with `opencode` open
 - Provide the agent with a prompt (or use the --prompt flag to pass one in without focusing the new session/window)
-- Use `<leader>L` in tmux to flick back to your main session while the agent works (you might even create some more trees at this point)
-- When happy with the agent's work, run `treeai <branch> --merge` to merge the worktree back to main and clean up the tmux sessions/prune worktrees
+- Use `<leader>L` in tmux to flick back to your working session while the agent works (you might even create some more trees at this point)
+- When happy with the agent's work, run `treeai <branch> --merge` to merge the worktree back to the current branch and clean up the tmux sessions/prune worktrees
 
 ## Installation
 
