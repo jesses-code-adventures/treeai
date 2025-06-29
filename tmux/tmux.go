@@ -81,7 +81,7 @@ func CreateAndSwitchSession(cfg *config.Config, worktreeName, prompt string) (st
 		return sessionName, fmt.Errorf("tmux session '%s' already exists", sessionName)
 	}
 
-	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", worktreeName)
+	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", cfg.WorktreePath(worktreeName))
 	if err = createCmd.Run(); err != nil {
 		return sessionName, fmt.Errorf("failed to create tmux session: %w", err)
 	}
@@ -94,7 +94,7 @@ func CreateAndSwitchSession(cfg *config.Config, worktreeName, prompt string) (st
 
 	// Create additional windows with custom commands
 	for _, command := range cfg.Commands {
-		windowCmd := exec.Command("tmux", "new-window", "-t", sessionName, "-c", worktreeName, "bash", "-c", command)
+		windowCmd := exec.Command("tmux", "new-window", "-t", sessionName, "-c", cfg.WorktreePath(worktreeName), "bash", "-c", command)
 		if err = windowCmd.Run(); err != nil {
 			return sessionName, fmt.Errorf("failed to create window with command '%s': %w", command, err)
 		}
@@ -141,18 +141,12 @@ func CreateAndSwitchSession(cfg *config.Config, worktreeName, prompt string) (st
 }
 
 func CreateAndSwitchToWindow(cfg *config.Config, worktreeName, prompt string) (string, error) {
-	gitRoot, err := git.FindRoot()
-	if err != nil {
-		return "", fmt.Errorf("failed to find git root: %w", err)
-	}
 	if cfg == nil {
 		cfg = config.New()
 	}
 
-	// TODO: this should be better
-	dir := fmt.Sprintf("%s/.opencode-trees/%s", gitRoot, worktreeName)
 	windowName := worktreeName
-	createCmd := exec.Command("tmux", "new-window", "-n", windowName, "-c", dir)
+	createCmd := exec.Command("tmux", "new-window", "-n", windowName, "-c", cfg.WorktreePath(worktreeName))
 	if err := createCmd.Run(); err != nil {
 		return windowName, fmt.Errorf("failed to create tmux window: %w", err)
 	}

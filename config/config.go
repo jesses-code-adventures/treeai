@@ -29,6 +29,10 @@ func New() *Config {
 	}
 }
 
+func (c *Config) WorktreePath(worktreeName string) string {
+	return filepath.Join(c.Data, worktreeName)
+}
+
 func (c *Config) ToSlogAttrs() []any {
 	data, _ := json.Marshal(c)
 

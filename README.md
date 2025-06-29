@@ -4,7 +4,7 @@ A cli application & tmux plugin for tight integration between tmux, git worktree
 
 To quickly create isolated environments for coding agents, this cli application automates the following workflow:
 
-- Create a git worktree with a new branch (stored in `./.opencode-trees`)
+- Create a git worktree with a new branch (stored in `$HOME/.local/share/treeai`)
 - Open the worktree in a new tmux session or window, with `opencode` open
 - Provide the agent with a prompt (or use the --prompt flag to pass one in without focusing the new session/window)
 - Use `<leader>L` in tmux to flick back to your main session while the agent works (you might even create some more trees at this point)
@@ -34,7 +34,13 @@ bind-key o command-prompt -p "worktree name:" "run-shell 'treeai %%'"
 - `treeai branch-name` - Create worktree + tmux session with opencode
 - `treeai branch-name --merge` - Merge worktree and cleanup
 - `--silent` - Suppress output
-- `--window "cmd"` - Add tmux windows with custom commands
+- `--command "cmd"` - Add tmux windows with custom commands
+- `--window` - Open tmux window instead of session
+- `--prompt "prompt"` - Send a prompt to opencode in the new session/window
+- `--bin "bin"` - Binary to launch in the tmux session/window, if not `opencode`
+- `--data "path"` - Path to data directory, if not `$HOME/.local/share/treeai`
+- `--gitignore` - Use .gitignore instead of .git/info/exclude to exclude worktrees from git
+- `--debug` - Enable debug logging
 
 ### Development Commands
 
