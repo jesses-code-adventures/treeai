@@ -2,6 +2,7 @@ package treeai
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -14,6 +15,29 @@ import (
 func exitWithError(format string, args ...any) {
 	fmt.Fprintf(os.Stderr, format, args...)
 	os.Exit(1)
+}
+
+func CopyFile(srcPath, dstPath string) error {
+	if err := os.MkdirAll(filepath.Dir(dstPath), 0755); err != nil {
+		return fmt.Errorf("error creating directory: %v", err)
+	}
+
+	srcFile, err := os.Open(srcPath)
+	if err != nil {
+		return fmt.Errorf("error opening source file: %v", err)
+	}
+	defer srcFile.Close()
+
+	dstFile, err := os.Create(dstPath)
+	if err != nil {
+		return fmt.Errorf("error creating destination file: %v", err)
+	}
+	defer dstFile.Close()
+
+	if _, err := io.Copy(dstFile, srcFile); err != nil {
+		return fmt.Errorf("error copying file: %v", err)
+	}
+	return nil
 }
 
 func CreateWorktree(cfg *config.Config, worktreeName, prompt string) {
@@ -40,6 +64,16 @@ func CreateWorktree(cfg *config.Config, worktreeName, prompt string) {
 
 	if err = git.CreateWorktree(gitRoot, worktreePath, worktreeName); err != nil {
 		exitWithError("Error creating git worktree: %v\n", err)
+	}
+
+	if len(cfg.Copy) > 0 {
+		for _, file := range cfg.Copy {
+			srcPath := filepath.Join(gitRoot, file)
+			dstPath := filepath.Join(worktreePath, file)
+			if err = CopyFile(srcPath, dstPath); err != nil {
+				exitWithError("Error copying file: %v\n", err)
+			}
+		}
 	}
 
 	// TODO: might not need this if using data dir

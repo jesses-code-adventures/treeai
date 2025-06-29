@@ -41,6 +41,7 @@ bind-key o command-prompt -p "worktree name:" "run-shell 'treeai %%'"
 - `--data "path"` - Path to data directory, if not `$HOME/.local/share/treeai`
 - `--gitignore` - Use .gitignore instead of .git/info/exclude to exclude worktrees from git
 - `--debug` - Enable debug logging
+- `--copy "file"` - Copy a gitignored file to the worktree
 
 ### Development Commands
 

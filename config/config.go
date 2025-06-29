@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Bin       string
 	Commands  []string
+	Copy      []string
 	Data      string
 	Debug     bool
 	Silent    bool
@@ -21,6 +22,7 @@ func New() *Config {
 	return &Config{
 		Bin:       "opencode",
 		Commands:  []string{},
+		Copy:      []string{},
 		Data:      os.ExpandEnv("$HOME/.local/share/treeai"),
 		Debug:     false,
 		Silent:    false,
@@ -50,7 +52,7 @@ func (c *Config) ToSlogAttrs() []any {
 	return attrs
 }
 
-func (c *Config) ApplyFlags(bin string, silent bool, data string, windowCommands []string, useGitignore, debug, window bool) {
+func (c *Config) ApplyFlags(bin string, silent bool, data string, windowCommands, copy []string, useGitignore, debug, window bool) {
 	// only override if flag was explicitly set (you'll need to track this in cobra)
 	if bin != "opencode" {
 		c.Bin = bin
@@ -72,6 +74,9 @@ func (c *Config) ApplyFlags(bin string, silent bool, data string, windowCommands
 	}
 	if data != "" {
 		c.Data = data
+	}
+	if len(copy) > 0 {
+		c.Copy = copy
 	}
 }
 

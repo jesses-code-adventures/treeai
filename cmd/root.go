@@ -14,6 +14,7 @@ var data string
 var merge bool
 var silent bool
 var commands []string
+var copyFiles []string
 var bin string
 var prompt string
 var gitignore bool
@@ -37,6 +38,7 @@ func init() {
 	rootCmd.Flags().BoolVar(&window, "window", false, "open a new tmux window with the worktree, instead of a session")
 	rootCmd.Flags().BoolVar(&debug, "debug", false, "use .gitignore instead of .git/info/exclude to exclude worktrees from git")
 	rootCmd.Flags().StringArrayVar(&commands, "command", []string{}, "add an additional tmux window per command, running each command in a new window")
+	rootCmd.Flags().StringArrayVar(&copyFiles, "copy", []string{}, "copy gitignored files to the worktree")
 	rootCmd.Flags().StringVar(&bin, "bin", "opencode", "binary to launch in the tmux session")
 	rootCmd.Flags().StringVar(&prompt, "prompt", "", "send a prompt to opencode in the new session")
 	rootCmd.Flags().StringVar(&data, "data", os.ExpandEnv("$HOME/.local/share/treeai"), "path to data directory")
@@ -56,7 +58,7 @@ func handleCommand(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "Error loading config: %v\n", err)
 		os.Exit(1)
 	}
-	cfg.ApplyFlags(bin, silent, data, commands, gitignore, debug, window)
+	cfg.ApplyFlags(bin, silent, data, commands, copyFiles, gitignore, debug, window)
 	l.Init(cfg)
 
 	if merge && len(commands) > 0 {
