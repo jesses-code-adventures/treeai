@@ -70,6 +70,9 @@ func CreateWorktree(cfg *config.Config, worktreeName, prompt string) {
 		for _, file := range cfg.Copy {
 			srcPath := filepath.Join(gitRoot, file)
 			dstPath := filepath.Join(worktreePath, file)
+			if _, err = os.Stat(srcPath); os.IsNotExist(err) {
+				continue
+			}
 			if err = CopyFile(srcPath, dstPath); err != nil {
 				exitWithError("Error copying file: %v\n", err)
 			}
