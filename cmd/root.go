@@ -2,22 +2,28 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
+	"github.com/jesses-code-adventures/treeai/config"
+	l "github.com/jesses-code-adventures/treeai/logger"
 	"github.com/jesses-code-adventures/treeai/treeai"
 	"github.com/spf13/cobra"
-	"os"
 )
 
-var mergeFlag bool
-var silentFlag bool
-var windowCommands []string
-var binName string
-var promptFlag string
+var data string
+var merge bool
+var silent bool
+var commands []string
+var bin string
+var prompt string
+var gitignore bool
+var window bool
+var debug bool
 
 var rootCmd = &cobra.Command{
 	Use:   "treeai <worktree-name>",
 	Short: "Tmux plugin for creating AI-dedicated git worktrees",
-	Long: `treeai is a tmux plugin that creates isolated git worktrees in .opencode-trees/ 
-directories for AI-assisted development while maintaining clean separation from your main environment.
+	Long: `treeai is a tmux plugin that creates isolated git worktrees for AI-assisted development while maintaining clean separation from your main environment.
 
 This tool requires tmux to be installed and is designed to work as a tmux plugin.`,
 	Args: cobra.ExactArgs(1),
@@ -25,11 +31,15 @@ This tool requires tmux to be installed and is designed to work as a tmux plugin
 }
 
 func init() {
-	rootCmd.Flags().BoolVar(&mergeFlag, "merge", false, "merge the worktree branch back to main and clean up")
-	rootCmd.Flags().BoolVar(&silentFlag, "silent", false, "suppress all output")
-	rootCmd.Flags().StringArrayVar(&windowCommands, "window", []string{}, "add additional tmux windows with custom bash commands")
-	rootCmd.Flags().StringVar(&binName, "bin", "opencode", "binary to launch in the tmux session")
-	rootCmd.Flags().StringVar(&promptFlag, "prompt", "", "send a prompt to opencode in the new session without focusing on it")
+	rootCmd.Flags().BoolVar(&merge, "merge", false, "merge the worktree branch back to main and clean up")
+	rootCmd.Flags().BoolVar(&silent, "silent", false, "suppress all output")
+	rootCmd.Flags().BoolVar(&gitignore, "gitignore", false, "use .gitignore instead of .git/info/exclude to exclude worktrees from git")
+	rootCmd.Flags().BoolVar(&window, "window", false, "open a new tmux window with the worktree, instead of a session")
+	rootCmd.Flags().BoolVar(&debug, "debug", false, "use .gitignore instead of .git/info/exclude to exclude worktrees from git")
+	rootCmd.Flags().StringArrayVar(&commands, "command", []string{}, "add an additional tmux window per command, running each command in a new window")
+	rootCmd.Flags().StringVar(&bin, "bin", "opencode", "binary to launch in the tmux session")
+	rootCmd.Flags().StringVar(&prompt, "prompt", "", "send a prompt to opencode in the new session")
+	rootCmd.Flags().StringVar(&data, "data", os.ExpandEnv("$HOME/.local/share/treeai"), "path to data directory")
 }
 
 func Execute() {
@@ -40,24 +50,33 @@ func Execute() {
 }
 
 func handleCommand(cmd *cobra.Command, args []string) {
-	if mergeFlag && len(windowCommands) > 0 {
+	branchName := args[0]
+	cfg, err := config.Load()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading config: %v\n", err)
+		os.Exit(1)
+	}
+	cfg.ApplyFlags(bin, silent, data, commands, gitignore, debug, window)
+	l.Init(cfg)
+
+	if merge && len(commands) > 0 {
 		fmt.Fprintf(os.Stderr, "Error: cannot create a window when merging\n")
 		os.Exit(1)
 	}
 
-	if mergeFlag && promptFlag != "" {
+	if merge && prompt != "" {
 		fmt.Fprintf(os.Stderr, "Error: cannot use --prompt flag when merging\n")
 		os.Exit(1)
 	}
 
-	if mergeFlag && binName != "opencode" {
+	if merge && bin != "opencode" {
 		fmt.Fprintf(os.Stderr, "Error: cannot use --bin-name flag when merging\n")
 		os.Exit(1)
 	}
 
-	if mergeFlag {
-		treeai.MergeWorktree(args[0], silentFlag)
+	if merge {
+		treeai.MergeWorktree(cfg, branchName)
 	} else {
-		treeai.CreateWorktree(args[0], silentFlag, windowCommands, promptFlag, binName)
+		treeai.CreateWorktree(cfg, branchName, prompt)
 	}
 }

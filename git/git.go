@@ -40,11 +40,14 @@ func CreateWorktree(gitRoot, worktreePath, branchName string) error {
 	return nil
 }
 
-func UpdateIgnore(gitRoot string) error {
-	gitignorePath := filepath.Join(gitRoot, ".gitignore")
+func UpdateIgnore(gitRoot string, useGitignore bool) error {
+	ignorePath := filepath.Join(gitRoot, ".git", "info", "exclude")
+	if useGitignore {
+		ignorePath = filepath.Join(gitRoot, ".gitignore")
+	}
 
 	content := ""
-	if data, err := os.ReadFile(gitignorePath); err == nil {
+	if data, err := os.ReadFile(ignorePath); err == nil {
 		content = string(data)
 	}
 
@@ -57,7 +60,7 @@ func UpdateIgnore(gitRoot string) error {
 	}
 	content += ".opencode-trees/\n"
 
-	return os.WriteFile(gitignorePath, []byte(content), 0644)
+	return os.WriteFile(ignorePath, []byte(content), 0644)
 }
 
 func GetCurrentBranch(gitRoot string) (string, error) {

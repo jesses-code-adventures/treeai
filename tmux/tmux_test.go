@@ -40,7 +40,7 @@ func TestCreateSessionName(t *testing.T) {
 				os.Unsetenv("TMUX")
 			}
 
-			got, err := CreateSessionName(tt.gitRoot, tt.worktreeName)
+			got, err := SessionName(tt.gitRoot, tt.worktreeName)
 			if err != nil && tt.currentSession == "" {
 				t.Errorf("CreateSessionName() error = %v", err)
 				return

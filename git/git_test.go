@@ -98,6 +98,7 @@ func TestFindRoot(t *testing.T) {
 func TestUpdateIgnore(t *testing.T) {
 	tests := []struct {
 		name           string
+		gitignore      bool
 		existingIgnore string
 		wantContent    string
 		wantErr        bool
@@ -105,11 +106,26 @@ func TestUpdateIgnore(t *testing.T) {
 		{
 			name:           "adds to empty gitignore",
 			existingIgnore: "",
+			gitignore:      true,
+			wantContent:    ".opencode-trees/\n",
+			wantErr:        false,
+		},
+		{
+			name:           "adds to empty .git/info/exclude",
+			existingIgnore: "",
+			gitignore:      false,
 			wantContent:    ".opencode-trees/\n",
 			wantErr:        false,
 		},
 		{
 			name:           "adds to existing gitignore with newline",
+			existingIgnore: "*.log\n",
+			wantContent:    "*.log\n.opencode-trees/\n",
+			wantErr:        false,
+			gitignore:      true,
+		},
+		{
+			name:           "adds to existing .git/info/exclude with newline",
 			existingIgnore: "*.log\n",
 			wantContent:    "*.log\n.opencode-trees/\n",
 			wantErr:        false,
@@ -119,6 +135,13 @@ func TestUpdateIgnore(t *testing.T) {
 			existingIgnore: "*.log",
 			wantContent:    "*.log\n.opencode-trees/\n",
 			wantErr:        false,
+		},
+		{
+			name:           "adds to existing .git/info/exclude with newline",
+			existingIgnore: "*.log\n",
+			wantContent:    "*.log\n.opencode-trees/\n",
+			wantErr:        false,
+			gitignore:      false,
 		},
 		{
 			name:           "skips if already present",
@@ -137,13 +160,16 @@ func TestUpdateIgnore(t *testing.T) {
 			defer os.RemoveAll(tmpDir)
 
 			gitignorePath := filepath.Join(tmpDir, ".gitignore")
+			if !tt.gitignore {
+				gitignorePath = filepath.Join(tmpDir, ".git", "info", "exclude")
+			}
 			if tt.existingIgnore != "" {
 				if err = os.WriteFile(gitignorePath, []byte(tt.existingIgnore), 0644); err != nil {
 					t.Fatal(err)
 				}
 			}
 
-			err = UpdateIgnore(tmpDir)
+			err = UpdateIgnore(tmpDir, true)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("UpdateIgnore() error = %v, wantErr %v", err, tt.wantErr)
 				return

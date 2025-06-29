@@ -6,6 +6,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/jesses-code-adventures/treeai/config"
+	"github.com/jesses-code-adventures/treeai/git"
 )
 
 func CheckInstalled() error {
@@ -42,7 +45,7 @@ func GetCurrentSession() (string, error) {
 }
 
 // CreateSessionName creates a tmux session name based on the git root directory and the target worktree name
-func CreateSessionName(gitRoot, worktreeName string) (string, error) {
+func SessionName(gitRoot, worktreeName string) (string, error) {
 	currentSession, err := GetCurrentSession()
 	if err != nil {
 		return "", err
@@ -58,56 +61,70 @@ func CreateSessionName(gitRoot, worktreeName string) (string, error) {
 	return fmt.Sprintf("%s-%s", baseSessionName, worktreeName), nil
 }
 
-func CreateAndSwitchSession(sessionName, worktreePath string, windowCommands []string, prompt, binName string) error {
-	checkCmd := exec.Command("tmux", "has-session", "-t", sessionName)
-	if checkCmd.Run() == nil {
-		return fmt.Errorf("tmux session '%s' already exists", sessionName)
+func CreateAndSwitchSession(cfg *config.Config, worktreeName, prompt string) (string, error) {
+	gitRoot, err := git.FindRoot()
+	if err != nil {
+		return "", err
 	}
 
-	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", worktreePath)
-	if err := createCmd.Run(); err != nil {
-		return fmt.Errorf("failed to create tmux session: %w", err)
+	if cfg == nil {
+		cfg = config.New()
+	}
+
+	sessionName, err := SessionName(gitRoot, worktreeName)
+	if err != nil {
+		return "", err
+	}
+
+	checkCmd := exec.Command("tmux", "has-session", "-t", sessionName)
+	if checkCmd.Run() == nil {
+		return sessionName, fmt.Errorf("tmux session '%s' already exists", sessionName)
+	}
+
+	createCmd := exec.Command("tmux", "new-session", "-d", "-s", sessionName, "-c", worktreeName)
+	if err = createCmd.Run(); err != nil {
+		return sessionName, fmt.Errorf("failed to create tmux session: %w", err)
 	}
 
 	// Send the binary command to the shell
-	sendCmd := exec.Command("tmux", "send-keys", "-t", sessionName+":0", binName, "Enter")
-	if err := sendCmd.Run(); err != nil {
-		return fmt.Errorf("failed to send binary command: %w", err)
+	sendCmd := exec.Command("tmux", "send-keys", "-t", sessionName+":0", cfg.Bin, "Enter")
+	if err = sendCmd.Run(); err != nil {
+		return sessionName, fmt.Errorf("failed to send binary command: %w", err)
 	}
 
 	// Create additional windows with custom commands
-	for _, command := range windowCommands {
-		windowCmd := exec.Command("tmux", "new-window", "-t", sessionName, "-c", worktreePath, "bash", "-c", command)
-		if err := windowCmd.Run(); err != nil {
-			return fmt.Errorf("failed to create window with command '%s': %w", command, err)
+	for _, command := range cfg.Commands {
+		windowCmd := exec.Command("tmux", "new-window", "-t", sessionName, "-c", worktreeName, "bash", "-c", command)
+		if err = windowCmd.Run(); err != nil {
+			return sessionName, fmt.Errorf("failed to create window with command '%s': %w", command, err)
 		}
 	}
 
 	// Always select window 0 (the specified binary) as the default focused window
 	selectCmd := exec.Command("tmux", "select-window", "-t", sessionName+":0")
-	if err := selectCmd.Run(); err != nil {
-		return fmt.Errorf("failed to select binary window: %w", err)
+	if err = selectCmd.Run(); err != nil {
+		return sessionName, fmt.Errorf("failed to select binary window: %w", err)
 	}
 
 	// If a prompt is provided, send it to opencode and don't switch/attach to the session
 	if prompt != "" {
 		sendCmd := exec.Command("tmux", "send-keys", "-t", sessionName+":0", prompt, "Enter")
-		if err := sendCmd.Run(); err != nil {
-			return fmt.Errorf("failed to send prompt to opencode: %w", err)
+		if err = sendCmd.Run(); err != nil {
+			return sessionName, fmt.Errorf("failed to send prompt to opencode: %w", err)
 		}
-		return nil
+		return sessionName, nil
 	}
 
 	currentSession, err := GetCurrentSession()
 	if err != nil {
-		return err
+		return sessionName, err
 	}
 
 	if currentSession != "" {
 		// We're inside tmux, switch to the new session
 		switchCmd := exec.Command("tmux", "switch-client", "-t", sessionName)
 		if err := switchCmd.Run(); err != nil {
-			return fmt.Errorf("failed to switch to tmux session: %w", err)
+			return sessionName, fmt.Errorf("failed to switch to tmux session: %w", err)
 		}
 	} else {
 		// We're outside tmux, attach to the new session
@@ -116,11 +133,45 @@ func CreateAndSwitchSession(sessionName, worktreePath string, windowCommands []s
 		attachCmd.Stdout = os.Stdout
 		attachCmd.Stderr = os.Stderr
 		if err := attachCmd.Run(); err != nil {
-			return fmt.Errorf("failed to attach to tmux session: %w", err)
+			return sessionName, fmt.Errorf("failed to attach to tmux session: %w", err)
 		}
 	}
 
-	return nil
+	return sessionName, nil
+}
+
+func CreateAndSwitchToWindow(cfg *config.Config, worktreeName, prompt string) (string, error) {
+	gitRoot, err := git.FindRoot()
+	if err != nil {
+		return "", fmt.Errorf("failed to find git root: %w", err)
+	}
+	if cfg == nil {
+		cfg = config.New()
+	}
+
+	// TODO: this should be better
+	dir := fmt.Sprintf("%s/.opencode-trees/%s", gitRoot, worktreeName)
+	windowName := worktreeName
+	createCmd := exec.Command("tmux", "new-window", "-n", windowName, "-c", dir)
+	if err := createCmd.Run(); err != nil {
+		return windowName, fmt.Errorf("failed to create tmux window: %w", err)
+	}
+
+	// Send the binary command to the shell in the new window
+	sendCmd := exec.Command("tmux", "send-keys", "-t", windowName, cfg.Bin, "Enter")
+	if err := sendCmd.Run(); err != nil {
+		return windowName, fmt.Errorf("failed to send binary command: %w", err)
+	}
+
+	// If a prompt is provided, send it to opencode
+	if prompt != "" {
+		sendCmd := exec.Command("tmux", "send-keys", "-t", windowName, prompt, "Enter")
+		if err := sendCmd.Run(); err != nil {
+			return windowName, fmt.Errorf("failed to send prompt to opencode: %w", err)
+		}
+	}
+
+	return windowName, nil
 }
 
 func SwitchToSession(sessionName string) error {

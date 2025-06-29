@@ -1,9 +1,9 @@
+.PHONY: build install test clean help
+
 BINARY_NAME=treeai
-WORKTREES_DIR=.opencode-trees
+DATA_DIR=$(HOME)/.local/share/treeai
 BUILD_DIR=build
 INSTALL_DIR=$(if $(XDG_BIN_HOME),$(XDG_BIN_HOME),$(HOME)/.local/bin)
-
-.PHONY: build install test clean help
 
 all: build
 
@@ -18,7 +18,7 @@ test:
 	go test ./...
 
 clean:
-	rm -rf $(WORKTREES_DIR)
+	rm -rf $(DATA_DIR)
 	git worktree prune
 	git branch --merged | grep -v "main" | xargs git branch -d
 	rm -f $(BUILD_DIR)/$(BINARY_NAME)
